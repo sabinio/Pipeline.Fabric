@@ -1,0 +1,35 @@
+{
+    "reports": [
+        {
+            "name": "Sales.Report",
+            "access": [
+                { "name": "Sales Team", "roles": [ "viewer" ] },
+                { "name": "Analytics Engineers", "roles": [ "contributor" ] },
+                { "name": "someone@example.com", "roles": [ "admin" ] }
+            ]
+        },
+        {
+            "name": "Finance.Report",
+            "access": [
+                { "name": "Finance Team", "roles": [ "viewer" ] }
+            ]
+        }
+    ],
+    "semanticModels": [
+        {
+            "name": "Sales.SemanticModel",
+            "access": [
+                { "name": "Analytics Engineers", "roles": [ "contributor" ] }
+            ]
+        }
+    ],
+    "warehouses": [
+        {
+            "name": "myworkspace_dw",
+            "access": [
+                { "name": "Analytics Engineers", "roles": [ "contributor" ] },
+                { "name": "Sales Team", "roles": [ "viewer" ] }
+            ]
+        }
+    ]
+}

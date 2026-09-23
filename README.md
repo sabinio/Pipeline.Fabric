@@ -56,6 +56,13 @@ Deploy-FabricOrgApp -WorkspaceName "myworkspace" -Path src/myworkspace/Apps/Repo
 
 Every command supports `-Verbose`, and the ones that change a workspace support `-WhatIf`.
 
+## Samples
+
+Runnable end-to-end examples live in [samples/](samples/README.md) — exploring a workspace,
+a full deployment stage, permission assignment, warehouse query sync, and calling the REST API
+directly. Each takes a workspace name and supports `-WhatIf` or `-DryRun` where it changes
+anything.
+
 ## Documentation
 
 Docs are generated from the comment-based help to the [docs folder](docs/Home.md) using `platyPS`,
