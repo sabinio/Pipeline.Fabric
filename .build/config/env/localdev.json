@@ -1,0 +1,8 @@
+{
+    "environment":"localdev",
+    "VersionNumber": "{\"0.0.{0}{1,4:D4}\" -f ((get-date )-(get-date  \"1 jan 2020\")).Days, [int]((get-date) - (get-date).Date).TotalMinutes}",
+    "prerelease":"dev",
+    "PowershellRepository":"PowershellGalleryTest",
+    "PowershellRepositoryFeed":"https://pkgs.dev.azure.com/sabinio/Sabin.IO/_packaging/PowershellGalleryTest/nuget/v2",
+    "FailOnTests":"{$true}"
+}

@@ -1,0 +1,55 @@
+Function Test-LogAreaEnabled{
+    param($logging, $area)
+
+    $result = $false
+
+    if($VerbosePreference -eq "Continue"){
+        $result = $true
+    }
+
+    $logging.split(',') | ForEach-Object {
+        if($_ -eq $area -or $_ -eq "*"){
+            $result = $true
+        }
+    }
+
+    $result
+
+}
+Function Get-VerboseSettings{
+    param($logging, $areas)
+
+    $verboseSettings = @{}
+    $areas | ForEach-Object {
+        $verboseSettings.Add($_, (Test-LogAreaEnabled $logging,$_))
+    }
+   
+    $verboseSettings
+
+}
+
+Function Write-SIOBanner {
+
+    Write-Host @'
+MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMmyysNMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMh://mMMMMMMMMMMMMMMMMMNy++sNMMMMMMMMMMMMMMMMMMMMMMMMMMM
+MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMh://mMMMMMMMMMMMMMMMMMm/::/hMMMMMMMMMMMMMMMMMMMMMMMMMMM
+MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMh://mMMMMMMMMMMMMMMMMMMmhhmMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+MMMMMMMMMMMMNNNNMMMMMMMMMMMMMMMNNMMMMMMMMMMMMh://mMMMNNNMMMMMMMMMMMMMMMMMMMMMMMMMMMNNNNNMMMMMMMMMMMM
+MMMMMMMMmyo+////++odMMMMMMy+++////+oymMMMMMMMh://yo+////+oymMMMMMMMMy++oNMMMMMho++///////+sdMMMMMMMM
+MMMMMMMy///+osyssoodMMMMMMh+syyyys+///yMMMMMMh://:/+osso+/:/omMMMMMMs://NMMMMNo://ossyys+///omMMMMMM
+MMMMMMN//:sNMMMMMMMMMMMMMMMMMMMMMMMy///dMMMMMh://hNMMMMMMd+///dMMMMMs://NMMMMNo::+MMMMMMMd//:oMMMMMM
+MMMMMMN+:/+dNMMMMMMMMMMMMMMMMMMMMMMN+::sMMMMMh://mMMMMMMMMN+:/+NMMMMs://NMMMMNo::+MMMMMMMMy///NMMMMM
+MMMMMMMmo////oydmMMMMMMMMMmhso+///+o//:sMMMMMh://mMMMMMMMMMy://dMMMMs://NMMMMNo::+MMMMMMMMd//:mMMMMM
+MMMMMMMMMNdso//://smMMMMms///+ssssso//:sMMMMMh://mMMMMMMMMMy://dMMMMs://NMMMMNo::+MMMMMMMMd//:mMMMMM
+MMMMMMMMMMMMMMmh+///hMMN+:/+mMMMMMMN+::sMMMMMh://mMMMMMMMMNo:/+NMMMMs://NMMMMNo::+MMMMMMMMd//:mMMMMM
+MMMMMMMMMMMMMMMMN+::+MMN//:+NMMMMMMN+::sMMMMMh://mMMMMMMMNs://hMMMMMs://NMMMMNo::+MMMMMMMMd//:mMMMMM
+MMMMMMNyydmNmmdhs///yMMMy///ohdmmmmd+::sMMMMMh://ydmmmdhs/::+dMMMMMMs://NMMMMNo::+MMMMMMMMd//:mMMMMM
+MMMMMMm//::::::::/odMMMMMdo//:::::::::/sMMMMMh//:::::::://ohNMMMMMMMy///NMMMMNo//+MMMMMMMMm//:mMMMMM
+MMMMMMMNmddhhhddmNMMMMMMMMMNmmddddmmmmNNMMMMMMNNmmmddddmmNMMMMMMMMMMNNNNMMMMMMmmmNMMMMMMMMMmmmMMMMMM
+MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+                                                                                                    
+----------------------------------------------------------------------------------------------------
+'@
+}

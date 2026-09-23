@@ -1,0 +1,15 @@
+{
+        "ProjectName":  "Pipeline.Fabric",
+        "System_PullRequest_SourceBranch":"unkown",
+        "environment":  "",
+        "CleanBuild":  false,
+        "VersionNumber":  "",
+        "prerelease":  "",
+        "FullVersion":  "{ $settings.VersionNumber + (&{if ($settings.prerelease){\"-$($settings.prerelease)\"}}) }",
+        "PowershellRepository":  "PSGallery",
+        "PowershellRepositoryFeed":  "",
+        "PowershellRepositoryUsername":  "",
+        "PowershellRepositorykey":  "{ConvertTo-SecureString -AsPlainText -Force 'Novalue'}",
+        "FailOnTests":  "{$false}",
+        "TestFilter":"*"
+}

@@ -1,0 +1,9 @@
+{
+    "environment":"pr",
+    "System_PullRequest_SourceBranch":"",
+    "prerelease":"{\"pr$($settings.System_PullRequest_SourceBranch.split('/')[-1] -replace '[^a-zA-Z0-9]','')\"[0..20] -join ''}",
+    "PowershellRepository":"PowershellGalleryTest",
+    "PowershellRepositoryFeed":"https://pkgs.dev.azure.com/sabinio/Sabin.IO/_packaging/PowershellGalleryTest/nuget/v2",
+    "PowershellRepositoryUsername":"",
+    "PowershellRepositoryKey":""
+}

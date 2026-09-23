@@ -1,0 +1,91 @@
+parameters: 
+- name: UsePowerShellCore
+  type: boolean
+- name : name
+  type : string
+- name: pool
+  type: string
+  values: 
+  - none
+  - sio-build-agents
+  - windows-latest 
+  - ubuntu-latest
+  - macOS-latest
+  default: 'none'
+- name: vmimage
+  type: string
+  default: ''
+
+- name: PublishArtifacts
+  type: boolean
+  default: false  
+
+jobs:
+- job: ${{parameters.name}}
+
+  displayName: ${{parameters.name}}
+  
+  pool:
+    ${{ if ne(parameters.pool,'none') }}:
+      name: ${{ parameters.pool }}
+    ${{ if eq(parameters.pool,'none') }}:
+      vmImage: ${{parameters.vmimage}}
+
+  steps:
+  - checkout: self
+    clean: false 
+
+  - task: PowerShell@2
+    enabled: true
+    inputs:
+      targetType: 'inline'
+      script: |
+        if ($PSVersionTable.PLatform -ne "Unix"){write-Host "##vso[task.setvariable variable=path;]$($env:localappdata)\Microsoft\dotnet;$($env:PATH)"}
+        write-Host $env:PATH
+
+  - task: PowerShell@2
+    name: build
+    inputs:
+      pwsh: ${{parameters.UsePowerShellCore}}
+      filePath: $(System.DefaultWorkingDirectory)/.build/pipeline-tasks.ps1
+      arguments: -Build  -Package
+    displayName: 'Build and Package'
+
+  - task: PowerShell@2
+    inputs:
+      pwsh: ${{parameters.UsePowerShellCore}}
+      filePath: $(System.DefaultWorkingDirectory)/.build/pipeline-tasks.ps1
+      arguments:  -Test  
+    displayName: 'Test'
+
+  - task: PublishTestResults@2
+    displayName: 'Publish Test Results'
+    inputs:
+      testResultsFormat: NUnit
+      testRunTitle: Tests ${{parameters.name}}
+      testResultsFiles: |
+        **/*.tests.results.xml
+      searchFolder: '$(System.DefaultWorkingDirectory)/out/test-results'
+      failTaskOnFailedTests: true
+    condition: succeededOrFailed()
+
+  - ${{if eq(Parameters.PublishArtifacts,'true') }}:
+    - task: PublishCodeCoverageResults@1
+      displayName: 'Publish Tests Coverage'
+      inputs:
+        codeCoverageTool: 'JaCoCo'
+        summaryFileLocation: '$(System.DefaultWorkingDirectory)/out/test-results/coverage_*.xml'
+        pathToSources: '$(System.DefaultWorkingDirectory)/src/$(ProjectName).module'
+        failIfCoverageEmpty: true
+
+    - publish: '$(artifactsPath)/.build'
+      artifact: '.build'
+      condition: succeededOrFailed()
+
+    - publish: '$(artifactsPath)/$(ProjectName)'
+      artifact: '$(ProjectName)'
+      condition: succeededOrFailed()
+
+    - publish: '$(artifactsPath)/$(ProjectName).Tests'
+      artifact: '$(ProjectName).Tests'
+      condition: succeededOrFailed()

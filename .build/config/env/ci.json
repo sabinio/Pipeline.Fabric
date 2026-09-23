@@ -1,0 +1,8 @@
+{
+    "environment":"ci",
+    "prerelease":"{$settings.environment}",
+    "PowershellRepository":"PSGallery",
+    "PowershellRepositoryFeed":"",
+    "PowershellRepositoryUsername":"",
+    "PowershellRepositoryKey":""
+}

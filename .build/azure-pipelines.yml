@@ -1,0 +1,94 @@
+
+name: $(BuildDefinitionName)_$(VersionNumber)_$(SourceBranchName)
+trigger:
+- main
+parameters:
+- name: logging
+  default: ""
+  type: string
+
+variables:
+- name: artifactsPath
+  value: "$(Build.ArtifactStagingDirectory)/artifacts"
+- name: BaseVersionNumber 
+  value: "1.0"  
+- name: Minor 
+  value: $[counter(variables['BaseVersionNumber'], 1)]
+- name: VersionNumber 
+  value: $(BaseVersionNumber).$(Minor)
+- name: VerboseLogging
+  value: ${{parameters.logging}}
+
+stages: 
+- stage: BuildAndTest
+  displayName: Build and Test 
+  variables:
+  - name: environment 
+    value: "ci"
+
+  jobs: 
+  - template: azure-pipelines.buildTest.yml
+    parameters:
+      UsePowerShellCore: false
+      pool: sio-build-agents
+      PublishArtifacts: false
+      name: windows_noncore
+
+  - template: azure-pipelines.buildTest.yml
+    parameters:
+      UsePowerShellCore: true
+      pool: sio-build-agents
+      PublishArtifacts: true
+      name: windows_core
+      
+#
+#  - template: azure-pipelines.buildTest.yml
+#    parameters:
+#      UsePowerShellCore: false
+#      vmimage: ubuntu-latest
+#      PublishArtifacts: false
+#      name: ubuntu_core
+#
+
+- stage: TestPublishForCI
+  dependsOn: BuildAndTest
+  displayName: Test Publishing for main
+  condition: and(succeeded(),eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  variables:
+    - group: sabin.io Powershell Publish
+    - name: ProjectName
+      value: $[ stageDependencies.BuildAndTest.windows_core.outputs['build.ProjectName'] ]
+    - name : environment
+      value: ci   
+  jobs:
+    - template: azure-pipelines.publish.yml
+  
+- stage: TestPublishForPR
+  dependsOn: BuildAndTest
+  displayName: Test Publishing for non main PRs
+  condition: and(succeeded(),ne(variables['Build.SourceBranch'], 'refs/heads/main'))
+  variables:
+    - group: sabin.io AzureDevOps Gallery Powershell Publish
+    - name: ProjectName
+      value: $[ stageDependencies.BuildAndTest.windows_core.outputs['build.ProjectName'] ]
+    - name : environment
+      value: pr
+  jobs:
+    - template: azure-pipelines.publish.yml
+
+- stage: Publish
+  dependsOn: 
+  - TestPublishForCI
+  - BuildAndTest
+  displayName: Publish to prod
+  condition: and(succeeded(),eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  variables:
+    - group: sabin.io Powershell Publish
+    - name: ProjectName
+      value: $[ stageDependencies.BuildAndTest.windows_core.outputs['build.ProjectName'] ]
+    - name : environment
+      value: prod
+  jobs:
+  - template: azure-pipelines.publish.yml
+
+        
