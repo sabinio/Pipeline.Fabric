@@ -4,7 +4,8 @@ PowerShell module for deploying to and managing Microsoft Fabric workspaces from
 
 It wraps the Fabric REST API and the [fabric-cicd](https://microsoft.github.io/fabric-cicd/) Python
 publisher so a pipeline can deploy a repository of Fabric items, deploy the Org Apps that
-fabric-cicd does not publish, assign workspace permissions, and sync saved warehouse queries.
+fabric-cicd does not publish, assign workspace permissions, sync saved warehouse queries, and
+provision the workspaces themselves (create, capacity, roles, managed identity, Git connection).
 
 ## Installation
 
@@ -36,6 +37,9 @@ Install-Module Pipeline.Fabric -Repository PSGallery
 |`Get-FabricDWServer`, `Get-FabricDWServerId`|Resolve warehouse connection strings and ids.|
 |`Get-FabricDWQueries`, `Sync-FabricDWQueries`|Read and synchronise a warehouse's saved SQL queries.|
 |`Sync-GitToWorkspace`|Sync a Git-connected workspace.|
+|`Get-FabricWorkspaceTopology`|Expand a medallion-layer/domain config into a flat list of workspace definitions (no API calls).|
+|`Set-FabricWorkspace`|Idempotently provision one workspace: create, capacity, roles, managed identity, Git.|
+|`New-FabricWorkspace`, `Set-FabricWorkspaceCapacity`, `Set-FabricWorkspacePermission`, `Set-FabricWorkspaceIdentity`, `Connect-FabricWorkspaceGit`|The building blocks `Set-FabricWorkspace` composes, usable individually.|
 |`Invoke-FabricRestCall`|Call any Fabric REST endpoint, handling auth and long-running operations.|
 
 ## Usage
@@ -52,6 +56,17 @@ Deploy-FabricItems -Environment prd `
     -ItemsInScope "Report,SemanticModel,Warehouse"
 
 Deploy-FabricOrgApp -WorkspaceName "myworkspace" -Path src/myworkspace/Apps/Reports.OrgApp -FolderPath Apps
+```
+
+### Provisioning workspaces
+
+```powershell
+# Expand config into the workspace topology, or just a slice of it
+$topology = Get-FabricWorkspaceTopology -Config $settings.Workspaces -Environments dev -Layers silver
+
+foreach ($ws in $topology) {
+    Set-FabricWorkspace -WorkspaceDisplayName $ws.WorkspaceDisplayName -CapacityId $settings.CapacityID `        -FabricAutomationAccountId $settings.FabricAutomationAccountID `        -DataTeamGroupId $settings.DataTeamGroupID -DataAdminsGroupId $settings.DataAdminsGroupID `        -Secure:$ws.Secure -SetManagedIdentity $ws.SetManagedIdentity `        -ConnectGit:([bool]$ws.Repository) -Repository $ws.Repository -DirectoryName $ws.DirectoryName `        -GitOwnerName $settings.GitOwnerName
+}
 ```
 
 Every command supports `-Verbose`, and the ones that change a workspace support `-WhatIf`.
