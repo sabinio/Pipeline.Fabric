@@ -73,11 +73,24 @@ NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 # This list is regenerated from the file names in Functions\ by .build\pipeline.build.ps1.
-FunctionsToExport = 'Connect-Fabric', 'Deploy-FabricItems', 'Deploy-FabricOrgApp',
-               'Get-AccessConfig', 'Get-FabricDWQueries', 'Get-FabricDWServer',
-               'Get-FabricDWServerId', 'Get-FabricItems', 'Get-FabricWorkspaceId',
-               'Invoke-FabricRestCall', 'Invoke-PermissionAssignment',
-               'Sync-FabricDWQueries', 'Sync-GitToWorkspace'
+FunctionsToExport = 'Connect-Fabric',
+               'Connect-FabricWorkspaceGit',
+               'Deploy-FabricItems',
+               'Deploy-FabricOrgApp',
+               'Get-AccessConfig',
+               'Get-FabricDWQueries',
+               'Get-FabricDWServer',
+               'Get-FabricDWServerId',
+               'Get-FabricItems',
+               'Get-FabricWorkspaceId',
+               'Invoke-FabricRestCall',
+               'Invoke-PermissionAssignment',
+               'New-FabricWorkspace',
+               'Set-FabricWorkspaceCapacity',
+               'Set-FabricWorkspaceIdentity',
+               'Set-FabricWorkspacePermission',
+               'Sync-FabricDWQueries',
+               'Sync-GitToWorkspace'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = '*'

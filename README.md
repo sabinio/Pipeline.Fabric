@@ -4,7 +4,8 @@ PowerShell module for deploying to and managing Microsoft Fabric workspaces from
 
 It wraps the Fabric REST API and the [fabric-cicd](https://microsoft.github.io/fabric-cicd/) Python
 publisher so a pipeline can deploy a repository of Fabric items, deploy the Org Apps that
-fabric-cicd does not publish, assign workspace permissions, and sync saved warehouse queries.
+fabric-cicd does not publish, assign workspace permissions, sync saved warehouse queries, and
+provision the workspaces themselves (create, capacity, roles, managed identity, Git connection).
 
 ## Installation
 
@@ -36,6 +37,7 @@ Install-Module Pipeline.Fabric -Repository PSGallery
 |`Get-FabricDWServer`, `Get-FabricDWServerId`|Resolve warehouse connection strings and ids.|
 |`Get-FabricDWQueries`, `Sync-FabricDWQueries`|Read and synchronise a warehouse's saved SQL queries.|
 |`Sync-GitToWorkspace`|Sync a Git-connected workspace.|
+|`New-FabricWorkspace`, `Set-FabricWorkspaceCapacity`, `Set-FabricWorkspacePermission`, `Set-FabricWorkspaceIdentity`, `Connect-FabricWorkspaceGit`|Idempotent building blocks for provisioning a workspace: create, capacity, role assignment, managed identity, Git connection.|
 |`Invoke-FabricRestCall`|Call any Fabric REST endpoint, handling auth and long-running operations.|
 
 ## Usage
@@ -52,6 +54,26 @@ Deploy-FabricItems -Environment prd `
     -ItemsInScope "Report,SemanticModel,Warehouse"
 
 Deploy-FabricOrgApp -WorkspaceName "myworkspace" -Path src/myworkspace/Apps/Reports.OrgApp -FolderPath Apps
+```
+
+### Provisioning workspaces
+
+The provisioning commands are building blocks; the consuming solution composes them into
+whatever workspace topology and naming it needs.
+
+```powershell
+$capacityId = '00000000-0000-0000-0000-000000000000'
+$adminsGroupId = '11111111-1111-1111-1111-111111111111'
+
+$workspaceId = Get-FabricWorkspaceId -workspaceName 'dev_slv_core'
+if (-not $workspaceId) {
+    $workspaceId = (New-FabricWorkspace -DisplayName 'dev_slv_core' -CapacityId $capacityId).id
+}
+
+Set-FabricWorkspaceCapacity -WorkspaceId $workspaceId -CapacityId $capacityId
+Set-FabricWorkspacePermission -WorkspaceId $workspaceId -Role Admin -PrincipalId $adminsGroupId -PrincipalType Group
+Set-FabricWorkspaceIdentity -WorkspaceId $workspaceId -Enabled $true
+Connect-FabricWorkspaceGit -WorkspaceId $workspaceId -OwnerName 'MyOrg' -RepositoryName 'my-repo' -DirectoryName '/src/silver/core'
 ```
 
 Every command supports `-Verbose`, and the ones that change a workspace support `-WhatIf`.
