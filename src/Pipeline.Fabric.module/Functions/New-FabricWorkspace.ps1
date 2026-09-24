@@ -5,7 +5,7 @@ function New-FabricWorkspace {
 
     .DESCRIPTION
         Thin wrapper over POST v1/workspaces. Does not check whether a workspace with the
-        same display name already exists - callers that need idempotency (e.g. Set-FabricWorkspace)
+        same display name already exists - callers that need idempotency (e.g. a provisioning script)
         should check with Get-FabricWorkspaceId first.
 
     .PARAMETER DisplayName

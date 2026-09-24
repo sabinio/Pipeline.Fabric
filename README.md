@@ -37,9 +37,7 @@ Install-Module Pipeline.Fabric -Repository PSGallery
 |`Get-FabricDWServer`, `Get-FabricDWServerId`|Resolve warehouse connection strings and ids.|
 |`Get-FabricDWQueries`, `Sync-FabricDWQueries`|Read and synchronise a warehouse's saved SQL queries.|
 |`Sync-GitToWorkspace`|Sync a Git-connected workspace.|
-|`Get-FabricWorkspaceTopology`|Expand a medallion-layer/domain config into a flat list of workspace definitions (no API calls).|
-|`Set-FabricWorkspace`|Idempotently provision one workspace: create, capacity, roles, managed identity, Git.|
-|`New-FabricWorkspace`, `Set-FabricWorkspaceCapacity`, `Set-FabricWorkspacePermission`, `Set-FabricWorkspaceIdentity`, `Connect-FabricWorkspaceGit`|The building blocks `Set-FabricWorkspace` composes, usable individually.|
+|`New-FabricWorkspace`, `Set-FabricWorkspaceCapacity`, `Set-FabricWorkspacePermission`, `Set-FabricWorkspaceIdentity`, `Connect-FabricWorkspaceGit`|Idempotent building blocks for provisioning a workspace: create, capacity, role assignment, managed identity, Git connection.|
 |`Invoke-FabricRestCall`|Call any Fabric REST endpoint, handling auth and long-running operations.|
 
 ## Usage
@@ -60,13 +58,22 @@ Deploy-FabricOrgApp -WorkspaceName "myworkspace" -Path src/myworkspace/Apps/Repo
 
 ### Provisioning workspaces
 
-```powershell
-# Expand config into the workspace topology, or just a slice of it
-$topology = Get-FabricWorkspaceTopology -Config $settings.Workspaces -Environments dev -Layers silver
+The provisioning commands are building blocks; the consuming solution composes them into
+whatever workspace topology and naming it needs.
 
-foreach ($ws in $topology) {
-    Set-FabricWorkspace -WorkspaceDisplayName $ws.WorkspaceDisplayName -CapacityId $settings.CapacityID `        -FabricAutomationAccountId $settings.FabricAutomationAccountID `        -DataTeamGroupId $settings.DataTeamGroupID -DataAdminsGroupId $settings.DataAdminsGroupID `        -Secure:$ws.Secure -SetManagedIdentity $ws.SetManagedIdentity `        -ConnectGit:([bool]$ws.Repository) -Repository $ws.Repository -DirectoryName $ws.DirectoryName `        -GitOwnerName $settings.GitOwnerName
+```powershell
+$capacityId = '00000000-0000-0000-0000-000000000000'
+$adminsGroupId = '11111111-1111-1111-1111-111111111111'
+
+$workspaceId = Get-FabricWorkspaceId -workspaceName 'dev_slv_core'
+if (-not $workspaceId) {
+    $workspaceId = (New-FabricWorkspace -DisplayName 'dev_slv_core' -CapacityId $capacityId).id
 }
+
+Set-FabricWorkspaceCapacity -WorkspaceId $workspaceId -CapacityId $capacityId
+Set-FabricWorkspacePermission -WorkspaceId $workspaceId -Role Admin -PrincipalId $adminsGroupId -PrincipalType Group
+Set-FabricWorkspaceIdentity -WorkspaceId $workspaceId -Enabled $true
+Connect-FabricWorkspaceGit -WorkspaceId $workspaceId -OwnerName 'MyOrg' -RepositoryName 'my-repo' -DirectoryName '/src/silver/core'
 ```
 
 Every command supports `-Verbose`, and the ones that change a workspace support `-WhatIf`.
