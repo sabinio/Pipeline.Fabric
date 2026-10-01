@@ -106,7 +106,7 @@ PrivateData = @{
         Tags = @('Fabric', 'PowerBI', 'Deployment', 'CICD', 'Pipeline', 'Sabin')
 
         # A URL to the license for this module.
-        # LicenseUri = ''
+        LicenseUri = 'https://github.com/sabinio/Pipeline.Fabric/blob/main/LICENSE'
 
         # A URL to the main website for this project.
         ProjectUri = 'https://github.com/sabinio/Pipeline.Fabric'
