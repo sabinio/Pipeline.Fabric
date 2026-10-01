@@ -71,3 +71,7 @@ and published to the GitHub wiki on push to `main`.
 ## Contributing
 
 See [Contributing](Contributing.md) for the build, test and publish tasks.
+
+## License
+
+Released under the [MIT License](LICENSE).
