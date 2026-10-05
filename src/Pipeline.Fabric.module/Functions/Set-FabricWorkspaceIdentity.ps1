@@ -41,6 +41,11 @@ function Set-FabricWorkspaceIdentity {
             Write-Verbose "  Managed identity for workspace $WorkspaceId already in the desired state"
             return
         }
+        # Deprovisioning a workspace that has no identity returns 404 EntityNotFound
+        if (-not $Enabled -and $detail -match 'EntityNotFound') {
+            Write-Verbose "  Workspace $WorkspaceId has no managed identity - nothing to deprovision"
+            return
+        }        
         throw
     }
 }
